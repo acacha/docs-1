@@ -6,6 +6,7 @@
     - [One To Many](#one-to-many)
     - [Many To Many](#many-to-many)
     - [Has Many Through](#has-many-through)
+    - [Has Many Through Many](#has-many-through-many)
     - [Polymorphic Relations](#polymorphic-relations)
     - [Many To Many Polymorphic Relations](#many-to-many-polymorphic-relations)
 - [Querying Relations](#querying-relations)
@@ -338,7 +339,7 @@ Now that we have examined the table structure for the relationship, let's define
 
 The first argument passed to the `hasManyThrough` method is the name of the final model we wish to access, while the second argument is the name of the intermediate model.
 
-Typical Eloquent foreign key conventions will be used when performing the relationship's queries. If you would like to customize the keys of the relationship, you may pass them as the third and fourth arguments to the `hasManyThrough` method. The third argument is the name of the foreign key on the intermediate model, the fourth argument is the name of the foreign key on the final model, and the fifth argument is the local key:
+Typical Eloquent foreign key conventions will be used when performing the relationship's queries. If you would like to customize the keys of the relationship, you may pass them as the third, fourth and fitfh arguments to the `hasManyThrough` method. The third argument is the name of the foreign key on the intermediate model, the fourth argument is the name of the foreign key on the final model, and the fifth argument is the local key:
 
     class Country extends Model
     {
@@ -350,6 +351,66 @@ Typical Eloquent foreign key conventions will be used when performing the relati
             );
         }
     }
+
+<a name="has-many-through-many"></a>
+### Has Many Through Many
+
+The "has-many-through-many" relationship provides a convenient short-cut for accessing distant relations via an intermediate many to many relation. Let's assume we have the typical many to many relationship between `User` model an group `Model` so we assign to the pivot table the model `Membership`:
+
+    users
+        id - integer
+        name - string
+
+    memberships
+        id - integer
+        user_id - integer
+        group_id - integer
+
+    groups
+        id - integer
+        title - string
+
+Suppose we want to implement an app to send notifications to group of users, so notifications are sent to groups of users using a `Notification` model with the following table:
+
+    notifications
+        id - integer
+        group_id - integer
+        message - string
+
+Though `notifications` does not contain a `user_id` column, the `hasManyThroughMany` relation provides access to a user's notifications via `$user->notifications`. To perform this query, Eloquent inspects the `user_id` on the intermediate `memberships` table. After finding the matching group IDs, they are used to query the `notifications` table.
+
+Now that we have examined the table structure for the relationship, let's define it on the `User` model:
+
+    <?php
+
+    namespace App;
+
+    use Illuminate\Database\Eloquent\Model;
+
+    class User extends Model
+    {
+        /**
+         * Get all of the notifications for the user.
+         */
+        public function notifications()
+        {
+            return $this->hasManyThroughMany('App\Notifications', 'App\Group');
+        }
+    }
+
+The first argument passed to the `hasManyThroughMany` method is the name of the final model we wish to access, while the second argument is the name of the intermediate model.
+
+Typical Eloquent foreign key conventions will be used when performing the relationship's queries. If you would like to customize the keys of the relationship, you may pass them as the third, fourth and fifth arguments to the `hasManyThroughMany` method. The third argument is the name of the foreign key on the intermediate model, the fourth argument is the name of the foreign key on the final model, the fifth argument is the field's name in intermediate model that matchs foreign key on the final model and the sixth argument is the local key:
+
+    class User extends Model
+    {
+        public function notifications()
+        {
+            return $this->hasManyThroughMany(
+                'App\Notifications', 'App\Group','contry_id', 'user_id', 'group_id', 'group_id'
+            );
+        }
+    }    
 
 <a name="polymorphic-relations"></a>
 ### Polymorphic Relations
