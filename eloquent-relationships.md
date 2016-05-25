@@ -356,13 +356,13 @@ Typical Eloquent foreign key conventions will be used when performing the relati
 <a name="has-many-through-many"></a>
 ### Has Many Through Many
 
-The "has-many-through-many" relationship provides a convenient short-cut for accessing distant relations via an intermediate many to many relation. Let's assume we have the typical many to many relationship between `User` model and `Group` model so we assign to the pivot table `memberships` the model `Membership`:
+The "has-many-through-many" relationship provides a convenient short-cut for accessing distant relations via an intermediate many to many relation. Let's assume we have the typical many to many relationship between `User` model and `Group` model through pivot table `group_user`:
 
     users
         id - integer
         name - string
 
-    memberships
+    group_user
         id - integer
         user_id - integer
         group_id - integer
@@ -378,7 +378,7 @@ Suppose we want to implement an app to send notifications to a group of users. N
         group_id - integer
         message - string
 
-Though `notifications` does not contain a `user_id` column, the `hasManyThroughMany` relation provides access to a user's notifications via `$user->notifications`. To perform this query, Eloquent inspects the `user_id` on the intermediate `memberships` table. After finding the matching group IDs, they are used to query the `notifications` table.
+Though `notifications` does not contain a `user_id` column, the `hasManyThroughMany` relation provides access to a user's notifications via `$user->notifications`. To perform this query, Eloquent inspects the `user_id` on the intermediate `group_user` table. After finding the matching group IDs, they are used to query the `notifications` table.
 
 Now that we have examined the table structure for the relationship, let's define it on the `User` model:
 
@@ -395,20 +395,25 @@ Now that we have examined the table structure for the relationship, let's define
          */
         public function notifications()
         {
-            return $this->hasManyThroughMany('App\Notification', 'App\Membership');
+            return $this->hasManyThroughMany('App\Notification', 'App\GroupUser', 'App\Group');
         }
     }
 
-The first argument passed to the `hasManyThroughMany` method is the name of the final model we wish to access, while the second argument is the name of the intermediate model.
+The first argument passed to the `hasManyThroughMany` method is the name of the final model we wish to access, while the second argument is the name of the intermediate/pivot model and third argument is the name of many to many related model.
 
-Typical Eloquent foreign key conventions will be used when performing the relationship's queries. If you would like to customize the keys of the relationship, you may pass them as the third, fourth, fifth and sixth arguments to the `hasManyThroughMany` method. The third argument is the name of the foreign key on the intermediate model, the fourth argument is the name of the foreign key on the final model, the fifth argument is the field's name in intermediate model that matchs foreign key on the final model and the sixth argument is the local key:
+Typical Eloquent foreign key conventions will be used when performing the relationship's queries. If you would like to customize the keys of the relationship, you may pass them as the third, fourth, fifth and sixth arguments to the `hasManyThroughMany` method. The third argument is the name of the foreign key on the intermediate model, the fourth argument is the name of the foreign key on the final model, the fifth argument is the field's name in intermediate model that matchs foreign key on the final model and the sixth argument is the local key.
+
+Supose we refactor many to many relationship to:
+
+
+In this case the relationship must be defined as:
 
     class User extends Model
     {
         public function notifications()
         {
             return $this->hasManyThroughMany(
-                'App\Notification', 'App\Membership','user_id', 'group_id', 'group_id', 'id'
+                'App\Notification', 'App\Membership', 'App\Group','user_id', 'group_id', 'group_id', 'id'
             );
         }
     }    
