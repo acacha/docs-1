@@ -408,7 +408,7 @@ Typical Eloquent foreign key conventions will be used when performing the relati
         public function notifications()
         {
             return $this->hasManyThroughMany(
-                'App\Notification', 'App\Membership','country_id', 'user_id', 'group_id', 'group_id'
+                'App\Notification', 'App\Membership','user_id', 'group_id', 'group_id', 'id'
             );
         }
     }    
