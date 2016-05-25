@@ -395,7 +395,7 @@ Now that we have examined the table structure for the relationship, let's define
          */
         public function notifications()
         {
-            return $this->hasManyThroughMany('App\Notification', 'App\Group');
+            return $this->hasManyThroughMany('App\Notification', 'App\Membership');
         }
     }
 
@@ -408,7 +408,7 @@ Typical Eloquent foreign key conventions will be used when performing the relati
         public function notifications()
         {
             return $this->hasManyThroughMany(
-                'App\Notification', 'App\Group','contry_id', 'user_id', 'group_id', 'group_id'
+                'App\Notification', 'App\Membership','country_id', 'user_id', 'group_id', 'group_id'
             );
         }
     }    
