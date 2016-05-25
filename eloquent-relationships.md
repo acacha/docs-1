@@ -398,6 +398,24 @@ Now that we have examined the table structure for the relationship, let's define
             return $this->hasManyThroughMany('App\Notification', 'App\GroupUser', 'App\Group');
         }
     }
+    
+Where `GroupUser` model is defined as:
+
+    <?php
+
+    namespace App;
+
+    use Illuminate\Database\Eloquent\Model;
+
+    class GroupUser extends Model
+    {
+        /**
+         * The table associated with the model.
+         *
+         * @var string
+         */
+        protected $table = 'group_user';
+    }
 
 The first argument passed to the `hasManyThroughMany` method is the name of the final model we wish to access, while the second argument is the name of the intermediate/pivot model and third argument is the name of many to many related model.
 
@@ -405,6 +423,31 @@ Typical Eloquent foreign key conventions will be used when performing the relati
 
 Supose we refactor many to many relationship to:
 
+    users
+        id - integer
+        name - string
+
+    memberships
+        id - integer
+        user_id - integer
+        group_id - integer
+
+    groups
+        id - integer
+        title - string
+        
+Where `Membership` model is defined as:
+
+    <?php
+
+    namespace App;
+
+    use Illuminate\Database\Eloquent\Model;
+
+    class Membership extends Model
+    {
+
+    }        
 
 In this case the relationship must be defined as:
 
